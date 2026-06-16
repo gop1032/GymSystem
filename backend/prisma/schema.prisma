@@ -1,0 +1,87 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Rol {
+  id       Int       @id @default(autoincrement())
+  nombre   String    @unique
+  usuarios Usuario[]
+}
+
+model Usuario {
+  id       Int    @id @default(autoincrement())
+  nombre   String
+  email    String @unique
+  password String
+
+  rolId Int
+  rol   Rol @relation(fields: [rolId], references: [id])
+}
+
+model Cliente {
+  id              Int           @id @default(autoincrement())
+  nombres         String
+  apellidos       String
+  dni             String @unique
+  telefono        String?
+  email           String?
+  fechaRegistro   DateTime @default(now())
+
+  membresias      Membresia[]
+  asistencias     Asistencia[]
+}
+
+model Plan {
+  id            Int @id @default(autoincrement())
+  nombre        String
+  precio        Decimal
+  duracionDias  Int
+
+  membresias    Membresia[]
+}
+
+model Membresia {
+  id          Int @id @default(autoincrement())
+
+  clienteId   Int
+  planId      Int
+
+  fechaInicio DateTime
+  fechaFin    DateTime
+  estado      String
+
+  cliente Cliente @relation(fields: [clienteId], references: [id])
+  plan    Plan    @relation(fields: [planId], references: [id])
+
+  pagos Pago[]
+}
+
+model Pago {
+  id           Int @id @default(autoincrement())
+
+  membresiaId  Int
+  monto        Decimal
+  fechaPago    DateTime @default(now())
+
+  membresia Membresia @relation(fields: [membresiaId], references: [id])
+}
+
+model Asistencia {
+  id         Int @id @default(autoincrement())
+
+  clienteId  Int
+  fechaHora  DateTime @default(now())
+
+  cliente Cliente @relation(fields: [clienteId], references: [id])
+}
+
+model Entrenador {
+  id           Int @id @default(autoincrement())
+  nombre       String
+  especialidad String?
+}
